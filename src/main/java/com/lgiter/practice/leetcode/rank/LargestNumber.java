@@ -47,6 +47,8 @@ public class LargestNumber {
         LargestNumber largestNumber = new LargestNumber();
         int[] num = new int[]{12,344,2322,545,7};
         System.out.println(largestNumber.largestNum(num));
+
+        System.out.println(System.getenv("USER"));
     }
 
 }
