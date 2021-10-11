@@ -104,7 +104,7 @@ public class FreemarkerDemo {
         s9.setGrade2("L");
         List<Student> list = Arrays.asList(s1, s2, s3, s4, s5, s6, s8,s9,s10,s11);
 
-        map.put("list",JSON.toJSONString(list));
+        map.put("list",list);
         StringWriter stringWriter = new StringWriter();
         Template template = config.getTemplate("mygroupby.ftl");
         template.process(map, stringWriter);

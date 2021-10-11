@@ -38,7 +38,14 @@ public class GroupByMethod implements TemplateMethodModelEx {
         if (arguments.size() > 4){
             throw new RuntimeException("分组字段数量不能超过4");
         }
-        Object target = arguments.get(0);
+        Object o = arguments.get(0);
+        WrapperTemplateModel model =  null;
+        if (o instanceof WrapperTemplateModel){
+            model = (WrapperTemplateModel) o;
+        } else {
+            throw new RuntimeException("不支持的数据类型:" + o);
+        }
+        Object target = JSON.toJSONString(model.getWrappedObject());
         log.info(target.toString());
         int fieldNum = arguments.size() - 1;
         switch (fieldNum){
