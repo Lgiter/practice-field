@@ -48,13 +48,17 @@ public class GroupByMethod implements TemplateMethodModelEx {
         Object target = JSON.toJSONString(model.getWrappedObject());
         log.info(target.toString());
         int fieldNum = arguments.size() - 1;
+        List<Object> result = new ArrayList<>();
         switch (fieldNum){
             case 1:
-                return JSON.toJSONString(oneLevel(target,arguments.get(1).toString()));
+                result.add(JSON.toJSONString(oneLevel(target,arguments.get(1).toString())));
+                return result;
             case 2:
-                return JSON.toJSONString(twoLevel(target,arguments.get(1).toString(),arguments.get(2).toString()));
+                result.add(JSON.toJSONString(twoLevel(target,arguments.get(1).toString(),arguments.get(2).toString())));
+                return result;
             case 3:
-                return JSON.toJSONString(threeLevel(target,arguments.get(1).toString(),arguments.get(2).toString(),arguments.get(3).toString()));
+                result.add(JSON.toJSONString(threeLevel(target,arguments.get(1).toString(),arguments.get(2).toString(),arguments.get(3).toString())));
+                return result;
             default:
         }
         return null;
