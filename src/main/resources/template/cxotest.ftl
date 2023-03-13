@@ -1,0 +1,36 @@
+[
+<#list payload.resultList as item>
+    <#if item?index == payload.resultList?size - 1>
+        {
+        "measure_key":"total_wait_delivery",
+        "measure_name":"总待交付定单量",
+        "value":${(item.total_wait_delivery?c)}
+        },
+        {
+        "measure_key":"l7_wait_delivery",
+        "measure_name":"L7待交付定单量",
+        "value":${(item.l7_wait_delivery)?c}
+        },
+        {
+        "measure_key":"l8_wait_delivery",
+        "measure_name":"L8待交付定单量",
+        "value":${(item.l8_wait_delivery)?c}
+        },
+        {
+        "measure_key":"l9_wait_delivery",
+        "measure_name":"L9待交付定单量",
+        "value":${(item.l9_wait_delivery)?c}
+        },
+        {
+        "measure_key":"one_wait_delivery",
+        "measure_name":"理想ONE待交付定单量",
+        "value":${(item.one_wait_delivery)?c}
+        },
+        {
+        "measure_key":"l7_air_wait_delivery",
+        "measure_name":"L7Air待交付定单量",
+        "value":${(item.l7_air_wait_delivery)?c}
+        }
+    </#if>
+</#list>
+]
