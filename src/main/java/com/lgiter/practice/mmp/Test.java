@@ -47,7 +47,7 @@ public class Test {
         Long begingTime = new Date().getTime();
 
         Map result = test("CC", "DD");
-		Test result2 = testThree("set", "abc", "ecd", "jj", "cc", "zv", "sss", "sfsd");
+		Test result2 = testThree("set", result.get("CC").toString(), "ecd", "jj", "cc", "zv", "sss", "sfsd");
 
         System.out.println(" in main result1 = " + result);
 		System.out.println(" in main result2 = " + result2);
