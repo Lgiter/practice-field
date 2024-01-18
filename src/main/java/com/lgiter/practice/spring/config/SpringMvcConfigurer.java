@@ -1,10 +1,12 @@
 package com.lgiter.practice.spring.config;
 
 import com.lgiter.practice.spring.converter.TimezoneConverter;
-import org.springframework.context.annotation.Bean;
+import com.lgiter.practice.spring.converter.UMRMappingJackson2HttpMessageConverter;
+import com.lgiter.practice.spring.interceptor.TimezoneInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 
 import java.util.List;
 
@@ -14,13 +16,16 @@ import java.util.List;
  * Desc:
  */
 @Configuration
-public class SpringMvcConfigurer implements WebMvcConfigurer {
+public class SpringMvcConfigurer extends WebMvcConfigurationSupport {
+
 
     @Override
-    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-        converters.add(new TimezoneConverter());
-
+    protected void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
+        converters.add(0,new TimezoneConverter());
     }
 
-
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new TimezoneInterceptor());
+    }
 }

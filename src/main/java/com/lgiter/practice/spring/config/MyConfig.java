@@ -1,6 +1,11 @@
 package com.lgiter.practice.spring.config;
 
+import com.lgiter.practice.spring.filter.TimezoneFilter;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.Arrays;
 
 /**
  * @Author: lixiaolong
@@ -17,4 +22,15 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration(proxyBeanMethods = false)
 public class MyConfig {
+
+
+    @Bean
+    public FilterRegistrationBean getTimezoneFilter(){
+        FilterRegistrationBean registration = new FilterRegistrationBean();
+        TimezoneFilter filter = new TimezoneFilter();
+        registration.setFilter(filter);
+        registration.setUrlPatterns(Arrays.asList("/*"));
+        return registration;
+    }
+
 }
