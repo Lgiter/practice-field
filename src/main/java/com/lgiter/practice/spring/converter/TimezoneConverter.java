@@ -2,7 +2,10 @@ package com.lgiter.practice.spring.converter;
 
 import com.alibaba.fastjson.JSON;
 import com.lgiter.practice.spring.anno.TimezoneConvert;
+import com.lgiter.practice.spring.config.FieldTypeProcesserHolder;
 import com.lgiter.practice.spring.enums.Timezone;
+import com.lgiter.practice.spring.timezone.FieldTypeProcesser;
+import com.lgiter.practice.spring.util.SpringContextUtil;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpInputMessage;
@@ -11,7 +14,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.time.Instant;
@@ -28,7 +33,10 @@ import java.util.List;
  * Desc:
  */
 @Slf4j
+@Component
 public class TimezoneConverter implements HttpMessageConverter<Object> {
+
+
     @Override
     public boolean canRead(Class<?> aClass, MediaType mediaType) {
         return false;
@@ -58,7 +66,10 @@ public class TimezoneConverter implements HttpMessageConverter<Object> {
             TimezoneConvert fieldAnnotation = field.getAnnotation(TimezoneConvert.class);
             if (fieldAnnotation != null) {
                 field.setAccessible(true);
-                processField(o, field, fieldAnnotation);
+                FieldTypeProcesserHolder processerHolder = SpringContextUtil.getBean(FieldTypeProcesserHolder.class);
+                FieldTypeProcesser processer = processerHolder.getProcesser(field.getType());
+                processer.process(field,o,fieldAnnotation);
+                // processField(o, field, fieldAnnotation);
             }
         }
         byte[] bytes = JSON.toJSONString(o).getBytes();

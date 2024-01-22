@@ -7,6 +7,7 @@ import java.lang.reflect.Field;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 /**
@@ -15,14 +16,16 @@ import java.util.Date;
  * Desc:
  */
 @Component
-public class DateFieldTypeProcesser extends FieldTypeProcesser<Date> {
+public class StringFieldTypeProcesser extends FieldTypeProcesser<String> {
 
     @Override
     LocalDateTime read(Field field, Object o, TimezoneConvert fieldAnnotation) {
         try {
-            Date date = (Date) field.get(o);
-            Instant instant = date.toInstant();
-            return LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+            String parttern = fieldAnnotation.pattern();
+            String date = field.get(o).toString();
+            DateTimeFormatter df = DateTimeFormatter.ofPattern(parttern);
+            LocalDateTime dateTime = LocalDateTime.parse(date, df);
+            return dateTime;
         } catch (IllegalAccessException e) {
             e.printStackTrace();
             return null;
@@ -30,12 +33,8 @@ public class DateFieldTypeProcesser extends FieldTypeProcesser<Date> {
     }
 
     @Override
-    Date write(LocalDateTime localDateTime, TimezoneConvert fieldAnnotation) {
-        return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+    String write(LocalDateTime localDateTime,TimezoneConvert fieldAnnotation) {
+        return localDateTime.format(DateTimeFormatter.ofPattern(fieldAnnotation.pattern()));
     }
 
-    public static void main(String[] args) {
-        FieldTypeProcesser processer = new DateFieldTypeProcesser();
-        System.out.println(processer.getType().getTypeName());
-    }
 }

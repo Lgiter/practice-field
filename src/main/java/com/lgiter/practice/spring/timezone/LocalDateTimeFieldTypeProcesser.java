@@ -15,14 +15,13 @@ import java.util.Date;
  * Desc:
  */
 @Component
-public class DateFieldTypeProcesser extends FieldTypeProcesser<Date> {
+public class LocalDateTimeFieldTypeProcesser extends FieldTypeProcesser<LocalDateTime> {
 
     @Override
     LocalDateTime read(Field field, Object o, TimezoneConvert fieldAnnotation) {
         try {
-            Date date = (Date) field.get(o);
-            Instant instant = date.toInstant();
-            return LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+            LocalDateTime date = (LocalDateTime) field.get(o);
+            return date;
         } catch (IllegalAccessException e) {
             e.printStackTrace();
             return null;
@@ -30,12 +29,12 @@ public class DateFieldTypeProcesser extends FieldTypeProcesser<Date> {
     }
 
     @Override
-    Date write(LocalDateTime localDateTime, TimezoneConvert fieldAnnotation) {
-        return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+    LocalDateTime write(LocalDateTime localDateTime, TimezoneConvert fieldAnnotation) {
+        return localDateTime;
     }
 
     public static void main(String[] args) {
-        FieldTypeProcesser processer = new DateFieldTypeProcesser();
+        FieldTypeProcesser processer = new LocalDateTimeFieldTypeProcesser();
         System.out.println(processer.getType().getTypeName());
     }
 }
