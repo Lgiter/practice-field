@@ -36,5 +36,4 @@ public class StringFieldTypeProcesser extends FieldTypeProcesser<String> {
     String write(LocalDateTime localDateTime,TimezoneConvert fieldAnnotation) {
         return localDateTime.format(DateTimeFormatter.ofPattern(fieldAnnotation.pattern()));
     }
-
 }

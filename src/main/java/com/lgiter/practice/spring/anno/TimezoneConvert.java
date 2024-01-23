@@ -22,7 +22,7 @@ public @interface TimezoneConvert {
 
     String pattern() default "yyyy-MM-dd HH:mm:ss";
 
-    Timezone localTimezone() default Timezone.UTC8;
+    Timezone backendTimezone() default Timezone.UTC8;
 
-    Timezone targetTimezone() default Timezone.UTC1;
+    Timezone frontendTimezone() default Timezone.UTC1;
 }

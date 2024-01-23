@@ -23,14 +23,19 @@ public abstract class FieldTypeProcesser<T> {
 
     abstract LocalDateTime read(Field field, Object o, TimezoneConvert fieldAnnotation);
 
-    public void process(Field field, Object o,  TimezoneConvert fieldAnnotation) throws IllegalAccessException {
-        Timezone targetTimezone = fieldAnnotation.targetTimezone();
-        Timezone localTimezone = fieldAnnotation.localTimezone();
+    public void backToFront(Field field, Object o, TimezoneConvert fieldAnnotation) throws IllegalAccessException {
+        transform(field,o,fieldAnnotation,fieldAnnotation.backendTimezone(),fieldAnnotation.frontendTimezone());
+    }
+
+    public void frontToBack(Field field, Object o, TimezoneConvert fieldAnnotation) throws IllegalAccessException {
+        transform(field,o,fieldAnnotation,fieldAnnotation.frontendTimezone(),fieldAnnotation.backendTimezone());
+    }
+
+    private void transform(Field field, Object o, TimezoneConvert fieldAnnotation, Timezone baseTimezone, Timezone targetTimezone) throws IllegalAccessException {
         LocalDateTime transform = read(field, o,fieldAnnotation);
-        LocalDateTime dateTime = transform.atZone(ZoneId.of(localTimezone.getValue())).withZoneSameInstant(ZoneId.of(targetTimezone.getValue())).toLocalDateTime();
+        LocalDateTime dateTime = transform.atZone(ZoneId.of(baseTimezone.getValue())).withZoneSameInstant(ZoneId.of(targetTimezone.getValue())).toLocalDateTime();
         T t = write(dateTime,fieldAnnotation);
         field.set(o,t);
-
     }
 
     abstract T write(LocalDateTime localDateTime,TimezoneConvert fieldAnnotation);
