@@ -1,6 +1,7 @@
 package com.lgiter.practice.spring.bean;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.lgiter.practice.spring.anno.EnableTimezoneConvert;
 import com.lgiter.practice.spring.anno.TimezoneConvert;
 import com.lgiter.practice.spring.enums.Timezone;
 import lombok.Data;
@@ -13,16 +14,11 @@ import java.time.LocalDateTime;
  * Desc:
  */
 @Data
+@EnableTimezoneConvert
 public class TimezoneDemo {
 
     private String time = "2024-01-01 12:00:00";
 
-
-    @TimezoneConvert(pattern = "yyyy-MM-dd HH:mm:ss", frontendTimezone = Timezone.UTC1)
-    private String time1 = "2024-01-01 12:00:00";
-
-    @TimezoneConvert(pattern = "yyyy-MM-dd HH:mm:ss", frontendTimezone = Timezone.UTC2)
-    private String time2 = "2024-01-01 12:00:00";
 
     @TimezoneConvert(pattern = "yyyy-MM-dd HH:mm:ss", frontendTimezone = Timezone.UTC3)
     private String time3 = "2024-01-01 12:00:00";
@@ -36,6 +32,6 @@ public class TimezoneDemo {
     public LocalDateTime germany = LocalDateTime.now();
 
 
-
+    private TimezoneDemo child;
 
 }

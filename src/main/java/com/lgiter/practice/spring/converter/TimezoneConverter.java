@@ -15,7 +15,9 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
+import com.lgiter.practice.spring.anno.EnableTimezoneConvert;
 import com.lgiter.practice.spring.anno.TimezoneConvert;
+import com.lgiter.practice.spring.bean.TimezoneDemo;
 import com.lgiter.practice.spring.config.FieldTypeProcesserHolder;
 import com.lgiter.practice.spring.enums.Timezone;
 import com.lgiter.practice.spring.timezone.FieldTypeProcesser;
@@ -47,8 +49,10 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Author: lixiaolong
@@ -103,35 +107,59 @@ public class TimezoneConverter implements HttpMessageConverter<Object> {
 
     @SneakyThrows
     @Override
-    public Object read(Class<?> aClass, HttpInputMessage httpInputMessage) throws IOException, HttpMessageNotReadableException {
+    public Object read(Class<?> aClass, HttpInputMessage httpInputMessage) {
         JavaType javaType = getJavaType(aClass, null);
         Object o = readJavaType(javaType, httpInputMessage);
-        Field[] fields = aClass.getFields();
-        for (Field field : fields) {
+        Field[] fields = aClass.getDeclaredFields();
+        FieldTypeProcesserHolder processerHolder = SpringContextUtil.getBean(FieldTypeProcesserHolder.class);
+        Arrays.stream(fields).forEach(field -> {
+            try {
+                backToFrontProcess(field,o,processerHolder,false);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        return o;
+    }
+
+
+    private void backToFrontProcess(Field field, Object o,FieldTypeProcesserHolder processerHolder, boolean backToFront) throws Exception{
+        if (field != null && o != null){
+            field.setAccessible(true);
+            Class<?> type = field.getType();
             TimezoneConvert fieldAnnotation = field.getAnnotation(TimezoneConvert.class);
-            if (fieldAnnotation != null) {
-                field.setAccessible(true);
-                FieldTypeProcesserHolder processerHolder = SpringContextUtil.getBean(FieldTypeProcesserHolder.class);
+            if(fieldAnnotation != null){
                 FieldTypeProcesser processer = processerHolder.getProcesser(field.getType());
-                processer.frontToBack(field,o,fieldAnnotation);
+                if (backToFront){
+                    processer.backToFront(field,o,fieldAnnotation);
+                } else {
+                    processer.frontToBack(field,o,fieldAnnotation);
+                }
+            } else {
+                // 不是基本类型和String类型，继续向下找
+                Object o1 = field.get(o);
+                Field[] declaredFields = type.getDeclaredFields();
+                for (Field subField : declaredFields) {
+                    if (o1 != null && o1.getClass().getDeclaredAnnotation(EnableTimezoneConvert.class) != null){
+                        backToFrontProcess(subField,o1,processerHolder,backToFront);
+                    }
+                }
             }
         }
-        return o;
     }
 
     @SneakyThrows
     @Override
     public void write(Object o, MediaType mediaType, HttpOutputMessage httpOutputMessage) throws IOException, HttpMessageNotWritableException {
-        Field[] fields = o.getClass().getFields();
-        for (Field field : fields) {
-            TimezoneConvert fieldAnnotation = field.getAnnotation(TimezoneConvert.class);
-            if (fieldAnnotation != null) {
-                field.setAccessible(true);
-                FieldTypeProcesserHolder processerHolder = SpringContextUtil.getBean(FieldTypeProcesserHolder.class);
-                FieldTypeProcesser processer = processerHolder.getProcesser(field.getType());
-                processer.backToFront(field,o,fieldAnnotation);
+        Field[] fields = o.getClass().getDeclaredFields();
+        FieldTypeProcesserHolder processerHolder = SpringContextUtil.getBean(FieldTypeProcesserHolder.class);
+        Arrays.stream(fields).forEach(field -> {
+            try {
+                backToFrontProcess(field,o,processerHolder,true);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        }
+        });
         ObjectMapper objectMapper = SpringContextUtil.getBean(ObjectMapper.class);
         byte[] bytes = objectMapper.writeValueAsString(o).getBytes();
         httpOutputMessage.getBody().write(bytes);
@@ -164,4 +192,28 @@ public class TimezoneConverter implements HttpMessageConverter<Object> {
             field.set(o,dateTime);
         }
     }
+
+
+    public static void main(String[] args) throws Exception{
+        TimezoneDemo demo = new TimezoneDemo();
+        demo.setChild(new TimezoneDemo());
+        Field[] declaredFields = TimezoneDemo.class.getDeclaredFields();
+        for (int i = 0; i < declaredFields.length; i++) {
+            Field field = declaredFields[i];
+            field.setAccessible(true);
+            String name = field.getName();
+            if (Objects.equals(name,"value")){
+                field.set(demo,"new Value");
+            }
+            Class<?> type = field.getType();
+            type.isPrimitive();
+            Object o = field.get(demo);
+            Field[] declaredFields1 = o.getClass().getDeclaredFields();
+        }
+        System.out.println(JSON.toJSONString(demo));
+    }
+
+
+
+
 }
